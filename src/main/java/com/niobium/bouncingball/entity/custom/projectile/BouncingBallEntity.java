@@ -5,10 +5,12 @@ import com.niobium.bouncingball.item.ItemRegistry;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ThrowableItemProjectile;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
@@ -39,9 +41,20 @@ public class BouncingBallEntity extends ThrowableItemProjectile {
         }
         //TODO simplify
         Vec3 velocity = getDeltaMovement();
+
+        if(velocity.length() <= 0.1){
+            this.discard();
+
+            ItemEntity bouncingBallItemEntity = new ItemEntity(this.level(), this.getX(), this.getY(), this.getZ(),
+                    new ItemStack(ItemRegistry.BOUNCING_BALL.get())
+            );
+            this.level().addFreshEntity(bouncingBallItemEntity);
+            return;
+        }
+
         Vec3 normal = Vec3.atLowerCornerOf(result.getDirection().getNormal());
         Vec3 reflected = velocity.subtract(normal.scale(2 * velocity.dot(normal)));
-        double factor = Math.max(0, velocity.length() - 0.1 * 1.5) / velocity.length();
+        double factor = Math.max(0, velocity.length() - 0.2 * 1.5) / velocity.length();
 
         setDeltaMovement(reflected.scale(factor));
     }
@@ -50,13 +63,22 @@ public class BouncingBallEntity extends ThrowableItemProjectile {
     protected void onHitEntity(EntityHitResult result) {
         Entity hitEntity = result.getEntity();
 
-        if (!(this.getOwner() instanceof Player shooter) || shooter == hitEntity) {
+        if (!(this.getOwner() instanceof Player shooter)) {
+            return;
+        }
+
+        if (hitEntity == shooter) {
+            this.discard();
+            ItemStack bouncingBall = new ItemStack(ItemRegistry.BOUNCING_BALL.get());
+
+            if (!shooter.getInventory().add(bouncingBall)) {
+                shooter.drop(bouncingBall, false, false);
+            }
             return;
         }
 
         if (hitEntity instanceof Player hitPlayer) {
             ItemStack bouncingBall = new ItemStack(ItemRegistry.BOUNCING_BALL.get());
-
             if (!hitPlayer.getInventory().add(bouncingBall)) {
                 hitPlayer.drop(bouncingBall, false);
             }
