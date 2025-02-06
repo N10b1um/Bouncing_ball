@@ -17,7 +17,7 @@ public class EntityRegistry {
 
     public static final Supplier<EntityType<BouncingBallEntity>> BOUNCING_BALL =
             ENTITY_TYPES.register("bouncing_ball", () -> EntityType.Builder.<BouncingBallEntity>of(BouncingBallEntity::new, MobCategory.MISC)
-                    .sized(0.5F,0.5F).build("bouncing_ball"));
+                    .sized(0.5F,0.5F).updateInterval(1).build("bouncing_ball"));
 
     public static void register(IEventBus eventBus) {
         ENTITY_TYPES.register(eventBus);

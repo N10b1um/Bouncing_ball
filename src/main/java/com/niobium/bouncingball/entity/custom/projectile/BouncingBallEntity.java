@@ -10,13 +10,16 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ThrowableItemProjectile;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 public class BouncingBallEntity extends ThrowableItemProjectile {
+    private boolean hasCollided = false;
 
     public BouncingBallEntity(EntityType<? extends ThrowableItemProjectile> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
@@ -32,12 +35,14 @@ public class BouncingBallEntity extends ThrowableItemProjectile {
 
     @Override
     protected void onHitBlock(@NotNull BlockHitResult result) {
-        if(this.level().isClientSide()) {
+        if(hasCollided) {
             return;
         }
+
         Vec3 velocity = getDeltaMovement();
 
         if(velocity.length() <= 0.1){
+            hasCollided = true;
             this.discard();
             ItemEntity bouncingBallItemEntity = new ItemEntity(this.level(), this.getX(), this.getY(), this.getZ(),
                     new ItemStack(ItemRegistry.BOUNCING_BALL.get()));
@@ -54,7 +59,11 @@ public class BouncingBallEntity extends ThrowableItemProjectile {
     }
 
     @Override
-    protected void onHitEntity(EntityHitResult result) {
+    protected void onHitEntity(@NotNull EntityHitResult result) {
+        if(hasCollided) {
+            return;
+        }
+
         Entity hitEntity = result.getEntity();
 
         if (!(this.getOwner() instanceof Player shooter)) {
@@ -62,6 +71,7 @@ public class BouncingBallEntity extends ThrowableItemProjectile {
         }
 
         if (hitEntity == shooter) {
+            hasCollided = true;
             this.discard();
             ItemStack bouncingBall = new ItemStack(ItemRegistry.BOUNCING_BALL.get());
 
@@ -72,10 +82,30 @@ public class BouncingBallEntity extends ThrowableItemProjectile {
         }
 
         if (hitEntity instanceof Player hitPlayer) {
+            hasCollided = true;
             ItemStack bouncingBall = new ItemStack(ItemRegistry.BOUNCING_BALL.get());
             if (!hitPlayer.getInventory().add(bouncingBall)) {
                 hitPlayer.drop(bouncingBall, false);
             }
         }
+    }
+
+    @Override
+    public void tick() {
+        Vec3 movement = getDeltaMovement();
+        Vec3 position = position();
+
+        BlockHitResult hitResult = this.level().clip(new ClipContext(
+                position,
+                position.add(movement),
+                ClipContext.Block.COLLIDER,
+                ClipContext.Fluid.NONE,
+                this));
+
+        if (hitResult.getType() != HitResult.Type.MISS) {
+            onHitBlock(hitResult);
+        }
+
+        super.tick();
     }
 }
