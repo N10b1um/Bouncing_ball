@@ -14,6 +14,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 
 public class BouncingBallEntity extends ThrowableItemProjectile {
 
@@ -21,20 +22,16 @@ public class BouncingBallEntity extends ThrowableItemProjectile {
         super(pEntityType, pLevel);
     }
 
-    public BouncingBallEntity(Level pLevel) {
-        super(EntityRegistry.BOUNCING_BALL.get(),pLevel);
-    }
-
     public BouncingBallEntity(Level pLevel, LivingEntity livingEntity) {
         super(EntityRegistry.BOUNCING_BALL.get(),livingEntity, pLevel);
     }
     @Override
-    protected Item getDefaultItem() {
+    protected @NotNull Item getDefaultItem() {
         return ItemRegistry.BOUNCING_BALL.get();
     }
 
     @Override
-    protected void onHitBlock(BlockHitResult result) {
+    protected void onHitBlock(@NotNull BlockHitResult result) {
         if(this.level().isClientSide()) {
             return;
         }
