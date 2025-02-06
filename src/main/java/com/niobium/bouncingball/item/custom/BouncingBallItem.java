@@ -37,6 +37,6 @@ public class BouncingBallItem extends BowItem {
             ((Player) pPlayer).awardStat(Stats.ITEM_USED.get(this));
         }
 
-        itemstack.consume(1, pPlayer);
+        itemstack.shrink(1);
     }
 }

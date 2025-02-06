@@ -10,7 +10,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ThrowableItemProjectile;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
@@ -39,22 +38,20 @@ public class BouncingBallEntity extends ThrowableItemProjectile {
         if(this.level().isClientSide()) {
             return;
         }
-        //TODO simplify
         Vec3 velocity = getDeltaMovement();
 
-        if(velocity.length() <= 0.1){
+        if(velocity.length() <= 0.05){
             this.discard();
-
             ItemEntity bouncingBallItemEntity = new ItemEntity(this.level(), this.getX(), this.getY(), this.getZ(),
-                    new ItemStack(ItemRegistry.BOUNCING_BALL.get())
-            );
+                    new ItemStack(ItemRegistry.BOUNCING_BALL.get()));
+
             this.level().addFreshEntity(bouncingBallItemEntity);
             return;
         }
 
         Vec3 normal = Vec3.atLowerCornerOf(result.getDirection().getNormal());
         Vec3 reflected = velocity.subtract(normal.scale(2 * velocity.dot(normal)));
-        double factor = Math.max(0, velocity.length() - 0.2 * 1.5) / velocity.length();
+        double factor = Math.max(0, velocity.length() - 0.1 * 1.5) / velocity.length();
 
         setDeltaMovement(reflected.scale(factor));
     }

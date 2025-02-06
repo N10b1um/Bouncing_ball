@@ -11,7 +11,7 @@ public class ItemRegistry {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(Main.MODID);
 
     public static final DeferredItem<Item> BOUNCING_BALL = ITEMS.register("bouncing_ball",
-            () -> new BouncingBallItem(new Item.Properties()));
+            () -> new BouncingBallItem(new Item.Properties().stacksTo(1)));
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);
