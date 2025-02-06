@@ -37,7 +37,7 @@ public class BouncingBallEntity extends ThrowableItemProjectile {
         }
         Vec3 velocity = getDeltaMovement();
 
-        if(velocity.length() <= 0.05){
+        if(velocity.length() <= 0.1){
             this.discard();
             ItemEntity bouncingBallItemEntity = new ItemEntity(this.level(), this.getX(), this.getY(), this.getZ(),
                     new ItemStack(ItemRegistry.BOUNCING_BALL.get()));
