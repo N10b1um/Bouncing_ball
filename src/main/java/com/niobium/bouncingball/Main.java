@@ -27,11 +27,8 @@ public class Main {
     }
 
     private void onClientSetup(FMLClientSetupEvent event) {
-        LOGGER.info("BouncingBall Mod: Клиентская настройка запущена.");
-        EntityRenderers.register(
-                EntityRegistry.BOUNCING_BALL.get(),
-                ThrownItemRenderer::new
-        );
+        LOGGER.info("Bouncing Ball: Mod Started!");
+        EntityRenderers.register(EntityRegistry.BOUNCING_BALL.get(), ThrownItemRenderer::new);
     }
 
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
